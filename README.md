@@ -12,14 +12,13 @@ These steps include event generation (e.g., MadGraph), parton showering and hadr
 
 Users generate gridpacks using the `gridpack_generation.sh` script, specifying the model and process. For **central production**, the gridpack, Pythia fragment, number of events, and other metadata are provided to the NPS MC contact. For **local validation**, the gridpack is processed with `cmsDriver.py` to create GEN-SIM or full AOD workflows. Jobs are submitted using CRAB, with fragments and configs matching the target campaign.
 
-For a new signal model (e.g. vector-like leptons), the corresponding UFO model must also be provided. This example uses the vector-like lepton model available in [GitHub/blah](#) .
-
 ## 📋 Prerequisites
 
 - A CMSSW release aligned with the target campaign.
 - Active grid proxy (`voms-proxy-init`).
 - Access to CRAB client and gridpack tools.
--  Required cards/fragments in correct format (Dicuss this with the NPS MC contact)
+- A BSM model UFO file (contact a theorist for this).
+- Required cards/fragments in correct format (discuss this with the NPS MC contact).
 
 ## 📖 TWikis to read beforehand
 - Basic MadGraph tutorial: [TWiki> CMSPublic Web>WebPreferences>MadgraphTutorial](https://twiki.cern.ch/twiki/bin/view/CMSPublic/MadgraphTutorial)
@@ -87,9 +86,27 @@ genproductions/bin/MadGraph5_aMCatNLO
 -   **`submit_gridpack_generation_local.sh`**  
     Convenience script that wraps around `gridpack_generation.sh`. Automatically sets paths and handles environment setup for local generation.
 
+### VLL models:
+
+-   **Old Model**  
+    🔗 [cms-project-generators.web.cern.ch](https://cms-project-generators.web.cern.ch/cms-project-generators/)  
+    Both **VLL Doublet** and **VLL Singlet** are contained in a single `.tgz` UFO model archive.
+    The distinction is made using the `isospin` parameter:
+    
+    -   VLLD: `isospin = -0.5` 
+    -   VLLS: `isospin = 0.0` 
+   
+	   While defining decay modes of the particles, be very careful and explicit.
+        
+-   **New Model**  
+    🔗 [github.com/prudhvibhattiprolu/VLL-UFOs](https://github.com/prudhvibhattiprolu/VLL-UFOs)  
+    Provides **separate UFO models** for VLLD and VLLS.  Better clarity.
+
+> ✅ **Recommendation**: Use the _new model_ from GitHub for current and future productions, unless there's a specific legacy reason to stick to the old model. However, becfore central production, make sure that it is kept in the [cms-project-generators](https://cms-project-generators.web.cern.ch/cms-project-generators/) directory.
+
 ## 📝 Step-by-step Gridpack Production
 
-### Specify new-physics model
+### 1. Specify the new-physics model
 
 MadGraph needs the BSM model in UFO format to generate events for new-physics processes.
 - For **local testing or development**, place the UFO archive (e.g. `VLLD_NLO.tar.gz`) in:
@@ -98,50 +115,71 @@ MadGraph needs the BSM model in UFO format to generate events for new-physics pr
 	```
 - For **central production within CMS**, the UFO archive must be uploaded to https://cms-project-generators.web.cern.ch/cms-project-generators/. During gridpack generation, the script reads `extramodels.dat`, fetches the specified archive from this URL, and automatically unpacks and installs it in the appropriate location within the gridpack build environment.
 
-### Prepare your process cards
+### 2. Prepare the process cards
+> Note: I automated the card production step.  You can directly run the automated python script described in the [automation](#automation) section below. The following contains instructions for working with one model.
+> 
 Create a new directory inside `genproductions/bin/MadGraph5_aMCatNLO/cards/` named, for example, `VLLD_ele_M100` and place your `proc_card.dat` inside this directory with the following content:
 ```python
 import model VLL
-define tp = lp lp~
-define vtp = vlp vlp~
-define boson = w+ w- z h
-define ele = e+ e- ve ve~
-generate p p > tp tp, (tp > boson ele)
-add process p p > vtp vtp, (vtp > boson ele)
-add process p p > tp vtp, (tp > boson ele), (vtp > boson ele)
+define L = lp lp~
+define N = vlp vlp~
+define boson_L = z h
+define boson_N = w+ w-
+define lepton = e+ e- mu+ mu- ta+ ta- ve ve~ vm vm~ vt vt~
+generate p p > L L, (L > boson_L lepton)    #Pair production of L
+add process p p > N N, (N > boson_N lepton) #Pair production of N
+add process p p > L N, (L > boson_L lepton), (N > boson_N lepton) #Associated production of L and N
 output VLLD_ele_M100 -nojpeg
 ```
 Also include the following files in the same directory.
--  `run_card.dat`: defines generation settings (e.g. number of events, cuts).
--  `customizecards.dat`: sets benchmark masses, couplings, etc.
--  `extramodels.dat`: one line listing the model archive name without extensions. (For example, `VLL`.)
+- `*_run_card.dat`: defines generation settings (e.g. number of events, cuts).
+- `*_customizecards.dat`: sets benchmark masses, couplings, etc.
+- `*_extramodels.dat`: one line listing the model archive name without extensions. (For example, `VLL`.)
 
-### Configure `run_card.dat` and `param_card.dat`
+### 3. Configure parameter cards
 
--   **`run_card.dat`**  
-    Controls the overall run parameters like the number of events, beam energy, PDF sets, cuts, and matching settings. You can copy an existing `run_card.dat` from other samples and modify it to suit your needs.
+-   **`*_run_card.dat`**  
+    Defines generation-level settings such as the number of events, beam energies, kinematic cuts (like `pt` and `eta`), and matching or merging parameters. You can copy a template from similar MC campaigns and adjust it to your needs.
     
--   **`param_card.dat`**  
-    Contains model parameters such as masses, widths, and coupling constants. For BSM models, the param card is usually generated automatically from the UFO but can be customized if needed (e.g., to set the mass of the new particles).
+-   **`*_customizecards.dat`**  
+    Sets benchmark-specific parameters. This includes the masses of new particles, coupling strengths, and isospin (e.g. `-0.5` for doublet and `0.0` for singlet). These values override those in the default `param_card`.
+    
+-   **`*_extramodels.dat`**  
+    Contains a single line specifying the name of the UFO model archive (without the `.tar.gz` or `.tgz` extension).
     
 Place these files inside the same card directory (`cards/VLLD_ele_M100/`) alongside your `proc_card.dat`.
 
-### Generate the gridpack
+---
+### 🤖 Automation
+All the necessary information regarding the models and their mass points is kept in the `modeldict.yaml` file. `generate_cards_old.py` takes the old VLL model, some template cards from `templates/`, and generates all the cards necessary for gridpack production
 
-From the `MadGraph5_aMCatNLO` directory, run:
+---
+
+### 4. Generate the gridpack
+#### ⚠️ <span style="color:red;">Warning: proper environment setup is needed.</span>
+> Before running the gridpack generation, in case of Run2_UL samples, a proper SLC7 containter is needed. This shell can be loaded by logging into lxplus8 and running the following.
+> ```
+> source /cvmfs/cms.cern.ch/cmsset_default.sh
+>cmssw-el7
+>echo $SCRAM_ARCH
+> ```
+
+Once the working environment is ready, from the `MadGraph5_aMCatNLO` directory, run the following.
 ```bash
 ./gridpack_generation.sh VLLD_ele_M100 cards/VLLD_ele_M100
 ```
 Here, `VLLD_ele_M100` corresponds to the name of the process card (without the `_proc_card.dat` suffix), and `cards/VLLD_ele_M100` is the relative path to the directory containing the cards. This script will set up MadGraph, apply necessary patches, import your model, generate events, and produce the gridpack tarball.
 
-### Verify the output
+### 5. Verify the output
 
 Once the process finishes, the gridpack will be available as follows.
 ```
 genproductions/bin/MadGraph5_aMCatNLO/cards/VLLD_ele_M100/VLLD_ele_M100_gridpack.tar.xz
 ```
-    
-## 🧪 Local Validation of the Gridpack
+
+## 🧪 Local validation of the gridpack
+
+![Under development](https://img.shields.io/badge/status-under%20development-yellow)
 After successfully generating the gridpack, it's important to validate it locally before submitting large-scale production jobs. Follow these steps:
 
 - Unpack the gridpack in a separate working directory to maintain a clean environment:
@@ -157,6 +195,8 @@ After successfully generating the gridpack, it's important to validate it locall
 	./runcmsgrid_LO.sh <number_of_events>
 	```
 	This produces an LHE file (typically named `cmsgrid_final.lhe`). Inspect the initial lines of the file to verify correct event generation.
+	
+![Error: I am stuck here](https://img.shields.io/badge/Error-I%20am%20stuck%20here-red)
 
 - **GEN-SIM step:** Use `cmsDriver.py` to configure and run the GEN-SIM step, which includes parton showering (e.g., with Pythia) and detector simulation (GEANT4). An example command is:
 	```python
@@ -182,5 +222,10 @@ After successfully generating the gridpack, it's important to validate it locall
 
 This complete local chain ensures your gridpack is not only producing events but that these events are fully compatible with CMS simulation and analysis workflows. It helps catch potential issues early, saving time and resources in large-scale productions.
 
-## 📚 References
-1. "Vectorlike leptons at the Large Hadron Collider", [arXiv:1510.03456](https://arxiv.org/abs/1510.03456)
+## 🌏 Central Production
+![Work pending](https://img.shields.io/badge/status-work%20pending-red)
+After generating and validating the gridpack locally, submit it to the relevant NPS MC contact along with the model archive and cards. The central team will handle fragment preparation, validation, and submission to the grid.
+
+## 📚 References and important links
+1. N. Kumar and S. P. Martin, “Vectorlike Leptons at the Large Hadron Collider,” Phys. Rev. D 92, no.11, 115018 (2015) [arXiv:1510.03456](https://arxiv.org/abs/1510.03456)
+2. P. N. Bhattiprolu and S. P. Martin, "Prospects for vectorlike leptons at future proton-proton colliders," Phys. Rev. D 100, no.1, 015033 (2019) [arXiv:1905.00498](https://arxiv.org/abs/1905.00498).
