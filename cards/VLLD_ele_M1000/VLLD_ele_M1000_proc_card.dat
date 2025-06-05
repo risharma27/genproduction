@@ -1,12 +1,10 @@
 import model VLL
 define L = lp lp~
 define N = vlp vlp~
-define boson_L = z h
-define boson_N = w+ w-
-define lepton = e+ e- mu+ mu- ta+ ta- ve ve~ vm vm~ vt vt~
+define lepton = e+ e- ve ve~ #Taken from JSON
 
-generate p p > L L, (L > boson_L lepton)
-add process p p > N N, (N > boson_N lepton)
-add process p p > L N, (L > boson_L lepton), (N > boson_N lepton)
+generate p p > L L, (L > z lepton), (L > h lepton)      #Pair production
+add process p p > N N, (N > w+ lepton), (N > w- lepton) #Pair production 
+add process p p > L N, (L > z lepton), (L > h lepton), (N > w+ lepton), (N > w- lepton) #Associated production
 
 output VLLD_ele_M1000 -nojpeg

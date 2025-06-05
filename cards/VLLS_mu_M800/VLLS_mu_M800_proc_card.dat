@@ -1,0 +1,6 @@
+import model VLL
+define L = lp lp~
+define boson = w+ w- z h
+define lepton = mu+ mu- vm vm~
+generate p p > L L, (L > boson lepton)
+output VLLS_mu_M800 -nojpeg

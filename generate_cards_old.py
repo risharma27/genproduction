@@ -1,16 +1,13 @@
 import os
-import json
+import yaml
 
-with open("modeldict.json") as f:
-    modeldict = json.load(f)
-
-isospin_map = {"singlet": "0", "doublet": "-0.5"}
-
+with open("modeldict.yaml") as f: modeldict = yaml.safe_load(f)
 with open("templates/proc_card_singlet.dat") as f: proc_singlet_template = f.read()
 with open("templates/proc_card_doublet.dat") as f: proc_doublet_template = f.read()
 with open("templates/extramodels.dat") as f:       extramodels_template = f.read()
 with open("templates/customizecards.dat") as f:    customize_template = f.read()
 with open("templates/run_card.dat") as f:          run_card_content = f.read()
+isospin_map = {"singlet": "0", "doublet": "-0.5"}
 
 count = 0
 for idx, (tag, info) in enumerate(modeldict.items()):
@@ -23,7 +20,7 @@ for idx, (tag, info) in enumerate(modeldict.items()):
 
     # Define decay leptons based on coupling
     if   coupling == "mu":  decay_lepton = "mu+ mu- vm vm~"
-    elif coupling == "e":   decay_lepton = "e+ e- ve ve~"
+    elif coupling == "ele": decay_lepton = "e+ e- ve ve~"
     elif coupling == "tau": decay_lepton = "ta+ ta- vt vt~"
     else : decay_lepton = "e+ e- mu+ mu- ta+ ta- ve ve~ vm vm~ vt vt~"
 
@@ -37,10 +34,8 @@ for idx, (tag, info) in enumerate(modeldict.items()):
         print(f"{count}. Processing cards for: {prefix} .. ", end = '\t')
 
         # 1) proc_card
-        if info["type"] == "singlet":
-            proc = proc_singlet_template.format(model=model, decay_lepton=decay_lepton, output_name=prefix)
-        else:  # doublet
-            proc = proc_doublet_template.format(model=model, decay_lepton=decay_lepton, output_name=prefix)
+        if info["type"] == "singlet": proc = proc_singlet_template.format(model=model, decay_lepton=decay_lepton, output_name=prefix)
+        else:                         proc = proc_doublet_template.format(model=model, decay_lepton=decay_lepton, output_name=prefix)
         with open(os.path.join(outdir, f"{prefix}_proc_card.dat"), "w") as f: f.write(proc)
 
         # 2) customizecards
