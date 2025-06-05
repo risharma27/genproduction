@@ -1,0 +1,6 @@
+import model VLL
+define L = lp lp~
+define boson = w+ w- z h
+define lepton = e+ e- ve ve~
+generate p p > L L, (L > boson lepton)
+output VLLS_e_M300 -nojpeg
