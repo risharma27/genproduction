@@ -14,7 +14,7 @@ Check out the [Working example](#-working-example) section containing an example
 
 - Access to CMS computing grid (lxplus).
 - Access to CRAB client and gridpack tools.
-- CMS VOMS proxy, incase any external file used dusing production (such as PileUp profile).
+- CMS VOMS proxy, incase any external file used during production (such as pile-up profile).
 - A BSM model UFO file (contact a theorist for this).
 - Required cards/fragments in correct format (discuss this with the NPS MC contact).
 
@@ -100,7 +100,7 @@ genproductions/bin/MadGraph5_aMCatNLO
     Provides **separate UFO models** for VLLD and VLLS. Better clarity.
     ⚠️ This model is not available in the central repository at the moment. It needs to be put there beforehand.
 
-> ✅ **Recommendation**: Use the _new model_ from GitHub for current and future productions, unless there's a specific legacy reason to stick to the old model. However, becfore central production, make sure that it is kept in the [cms-project-generators](https://cms-project-generators.web.cern.ch/cms-project-generators/) directory.
+> ✅ **Recommendation**: Use the _new model_ from GitHub for current and future productions, unless there's a specific legacy reason to stick to the old model. However, before central production, make sure that it is kept in the [cms-project-generators](https://cms-project-generators.web.cern.ch/cms-project-generators/) directory.
 
 ## 📇Card generation:
 Create a new directory inside `genproductions/bin/MadGraph5_aMCatNLO/cards/` named, for example, `VLLD_ele_M100` and place your `proc_card.dat` inside this directory with the following content:
@@ -361,7 +361,13 @@ cmsRun cfg_5_NANOAOD.py
 ---
 
 ### 🤖 Automation
-Once the LHE file is generated, I have automated the subsequent steps using the python script `generate_config.py` This can be run as follows.
+Once the LHE file is generated, I have automated the subsequent steps using the python script `generate_config.py`  The fragment and the config generator can be downloaded in the `CMSSW_x_x_x/src` directory as follows.
+```bash
+mkdir -p Configuration/GenProduction/python
+wget -O Configuration/GenProduction/python/myfragment.py https://raw.githubusercontent.com/risharma27/genproduction/dev_prachu/Configuration/GenProduction/python/myfragment.py
+wget https://raw.githubusercontent.com/risharma27/genproduction/dev_prachu/generate_config.py
+```
+Set the parameters of the config generator with the appropriate settings for a particular campaign and run it as follows.
 ```bash
 python3 generate_config.py
 ```
@@ -374,7 +380,7 @@ Available options:
 - `--miniaod`: _(optional)_ Run only the MINIAOD step.
 - `--nanoaod`: _(optional)_ Run only the NANOAOD step.
 
-If no step options (`--nanoaod`, `--miniaod`, `--digiraw`) are specified, **all steps will be run** sequentially.
+If no step options (`--nanoaod`, `--miniaod`, `--digiraw`) are specified, **all steps will be run** sequentially. Once the configuration files are created, execute them **in order** using `cmsRun`, since each step depends on the output of the previous one.
 
 Example configuration files can be found in the [`example_configs/`](example_configs/) directory of this repository.
 
