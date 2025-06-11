@@ -8,12 +8,13 @@ MC generation in CMS follows a standard sequence:
 
 These steps include event generation (e.g., MadGraph), parton showering and hadronization (Pythia), detector simulation (GEANT4 via CMSSW), and full reconstruction. Each step is configured through CMSSW fragments, and production is aligned with centrally defined campaign configurations.  Users generate gridpacks using the `gridpack_generation.sh` script, specifying the model and process. For **central production**, the gridpack, Pythia fragment, number of events, and other metadata are provided to the NPS MC contact. For **local validation**, the gridpack is processed with `cmsDriver.py` to create GEN-SIM or full AOD workflows.
 
-Check out the [Working example](#working-example) section containing an example of production and local validation of one gridpack.
+Check out the [Working example](#-working-example) section containing an example of production and local validation of one gridpack.
 
 ## 📋 Prerequisites
 
 - Access to CMS computing grid (lxplus).
 - Access to CRAB client and gridpack tools.
+- CMS VOMS proxy, incase any external file used dusing production (such as PileUp profile).
 - A BSM model UFO file (contact a theorist for this).
 - Required cards/fragments in correct format (discuss this with the NPS MC contact).
 
@@ -380,6 +381,26 @@ Example configuration files can be found in the [`example_configs/`](example_con
 ---
 
 This complete local chain ensures that the gridpack is not only producing events but that these events are fully compatible with CMS simulation and analysis workflows. It helps catch potential issues early, saving time and resources in large-scale productions.
+
+## 📋 Run-2 and Run-3 Configuration Metadata
+
+This table provides the configuration parameters for Run-2 Ultra Legacy and Run-3 campaigns used in the CMS experiment. These parameters are used in the `generate_config.py` script for Monte Carlo production.
+
+| Campaign | conditions | beamspot | era |
+|--|--|--|--|
+| 2016preVFP_UL      | 106X_mcRun2_asymptotic_preVFP_v11          | Realistic25ns13TeVEarly2016Collision    | Run2_2016           |
+| 2016postVFP_UL     | 106X_mcRun2_asymptotic_v17                 | Realistic25ns13TeVLate2016Collision     | Run2_2016           |
+| 2017_UL            | 106X_mc2017_realistic_v9                   | Realistic25ns13TeVEarly2017Collision    | Run2_2017           |
+| 2018_UL            | 106X_upgrade2018_realistic_v15             | Realistic25ns13TeVEarly2018Collision    | Run2_2018           |
+| Run3Summer22       | 124X_mcRun3_2022_realistic_v12             | Realistic25ns13p6TeV_v2                | Run3_2022           |
+| Run3Summer22EE     | 124X_mcRun3_2022_realistic_postEE_v6       | Realistic25ns13p6TeV_v2                | Run3_2022           |
+| Run3Summer23       | 130X_mcRun3_2023_realistic_v14             | Realistic25ns13p6TeV_v2                | Run3_2023           |
+| Run3Summer23BPix   | 130X_mcRun3_2023_realistic_v14             | Realistic25ns13p6TeV_v2                | Run3_2023           |
+
+Sources:
+-  Global tags from [CMSPublic/GTsAfter2019](https://twiki.cern.ch/twiki/bin/view/CMSPublic/GTsAfter2019) and [CMSPublic/GTsRun3](https://twiki.cern.ch/twiki/bin/view/CMSPublic/GTsRun3)
+-   Beamspot definitions from [GitHub:cmssw/Configuration/StandardSequences/python/VtxSmeared.py](https://github.com/cms-sw/cmssw/blob/master/Configuration/StandardSequences/python/VtxSmeared.py)
+- Era definitions from [GitHub:cmssw/Configuration/Eras/python](https://github.com/cms-sw/cmssw/tree/master/Configuration/Eras/python)
 
 ## 🌏 Central Production
 ![Work pending](https://img.shields.io/badge/status-work%20pending-red)  
