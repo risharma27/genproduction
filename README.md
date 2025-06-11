@@ -373,10 +373,9 @@ python3 generate_config.py
 ```
 Available options:
 - `--n`: _(optional)_ Number of events to process per step. Default is 10.
-- `--gen`: _(optional)_ Run only the GEN step.  
-- `--digiraw`: _(optional)_ Run only the DIGIRAW step.  
-- `--hlt`: _(optional)_ Run only the HLT step.  
-- `--reco`: _(optional)_ Run only the RECO step.   
+- `--gensim`: _(optional)_ Run only the GEN step.  
+- `--digiraw`: _(optional)_ Run only the DIGIRAW step.  .  
+- `--aod`: _(optional)_ Run only the AOD (RECO) step.   
 - `--miniaod`: _(optional)_ Run only the MINIAOD step.
 - `--nanoaod`: _(optional)_ Run only the NANOAOD step.
 
