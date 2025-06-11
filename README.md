@@ -392,12 +392,12 @@ This table provides the configuration parameters for Run-2 Ultra Legacy and Run-
 | 2016postVFP_UL     | 106X_mcRun2_asymptotic_v17                 | Realistic25ns13TeVLate2016Collision     | Run2_2016           |
 | 2017_UL            | 106X_mc2017_realistic_v9                   | Realistic25ns13TeVEarly2017Collision    | Run2_2017           |
 | 2018_UL            | 106X_upgrade2018_realistic_v15             | Realistic25ns13TeVEarly2018Collision    | Run2_2018           |
-| Run3Summer22       | 124X_mcRun3_2022_realistic_v12             | Realistic25ns13p6TeV_v2                | Run3_2022           |
-| Run3Summer22EE     | 124X_mcRun3_2022_realistic_postEE_v6       | Realistic25ns13p6TeV_v2                | Run3_2022           |
-| Run3Summer23       | 130X_mcRun3_2023_realistic_v14             | Realistic25ns13p6TeV_v2                | Run3_2023           |
-| Run3Summer23BPix   | 130X_mcRun3_2023_realistic_v14             | Realistic25ns13p6TeV_v2                | Run3_2023           |
+| Run3Summer22       | 124X_mcRun3_2022_realistic_v12             | Realistic25ns13p6TeVEarly2022Collision                | Run3_2022           |
+| Run3Summer22EE     | 124X_mcRun3_2022_realistic_postEE_v6       | Realistic25ns13p6TeVEOY2022Collision                | Run3_2022           |
+| Run3Summer23       | 130X_mcRun3_2023_realistic_v14             | Realistic25ns13p6TeVEarly2023Collision                | Run3_2023           |
+| Run3Summer23BPix   | 130X_mcRun3_2023_realistic_v14             | Realistic25ns13p6TeVEarly2023Collision                | Run3_2023           |
 
-Sources:
+**⚠️ Verify these from the sources provided below:**
 -  Global tags from [CMSPublic/GTsAfter2019](https://twiki.cern.ch/twiki/bin/view/CMSPublic/GTsAfter2019) and [CMSPublic/GTsRun3](https://twiki.cern.ch/twiki/bin/view/CMSPublic/GTsRun3)
 -   Beamspot definitions from [GitHub:cmssw/Configuration/StandardSequences/python/VtxSmeared.py](https://github.com/cms-sw/cmssw/blob/master/Configuration/StandardSequences/python/VtxSmeared.py)
 - Era definitions from [GitHub:cmssw/Configuration/Eras/python](https://github.com/cms-sw/cmssw/tree/master/Configuration/Eras/python)
