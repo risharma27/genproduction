@@ -6,25 +6,32 @@ import argparse
 
 # Argument parsing
 parser = argparse.ArgumentParser()
-parser.add_argument("--n", type=int, default=10, help="Number of events (default: 10)")
-parser.add_argument("--gensim", action="store_true", help="Run GEN-SIM step")
+parser.add_argument("--n", type=int, default=10,      help="Number of events (default: 10)")
+parser.add_argument("--gensim", action="store_true",  help="Run GEN-SIM step")
 parser.add_argument("--digiraw", action="store_true", help="Run DIGIRAW step")
-parser.add_argument("--aod", action="store_true", help="Run AOD step")
+parser.add_argument("--aod", action="store_true",     help ="Run AOD step")
 parser.add_argument("--miniaod", action="store_true", help="Run MINIAOD step")
 parser.add_argument("--nanoaod", action="store_true", help="Run NANOAOD step")
 args = parser.parse_args()
 
+#---------------------------------------------
+## Setup for 2018_UL
+logfile = "log_config_scripts.log"
+global_tag = "106X_upgrade2018_realistic_v15"
+beamspot = "Realistic25ns13TeVEarly2018Collision"
+era = "Run2_2018"
+nanoaod_era_extension = "run2_nanoAOD_106Xv1"
+#---------------------------------------------
+
 step_flags = [args.gensim, args.digiraw, args.aod, args.miniaod, args.nanoaod]
 run_all = not any(step_flags)
-
-logfile = "log_config_scripts.log"
 
 common_args = [
     "--mc",
     "--geometry", "DB:Extended",
     "--no_exec",
     "--customise", "Configuration/DataProcessing/Utils.addMonitoring",
-    "--conditions", "106X_upgrade2018_realistic_v15",
+    "--conditions", global_tag,
     "-n", str(args.n)
 ]
 
@@ -38,10 +45,10 @@ steps = [
             "--fileout", "file:VLLD_ele_M100_GENSIM.root",
             "--eventcontent", "RAWSIM",
             "--datatier", "GEN-SIM",
-            "--beamspot", "Realistic25ns13TeVEarly2018Collision",
+            "--beamspot", beamspot,
             "--step", "GEN,SIM",
             "--python_filename", "cfg_1_GENSIM.py",
-            "--era", "Run2_2018"
+            "--era", era
         ]
     },
     {
@@ -58,7 +65,7 @@ steps = [
             "--step", "DIGI,L1,DIGI2RAW,HLT:@relval2018",
             "--nThreads", "8",
             "--python_filename", "cfg_2_DIGIRAW.py",
-            "--era", "Run2_2018"
+            "--era", era
         ]
     },
     {
@@ -74,7 +81,7 @@ steps = [
             "--step", "RAW2DIGI,L1Reco,RECO,RECOSIM,EI",
             "--nThreads", "8",
             "--python_filename", "cfg_3_AOD.py",
-            "--era", "Run2_2018"
+            "--era", era
         ]
     },
     {
@@ -90,7 +97,7 @@ steps = [
             "--step", "PAT",
             "--nThreads", "8",
             "--python_filename", "cfg_4_MINIAOD.py",
-            "--era", "Run2_2018"
+            "--era", era
         ]
     },
     {
@@ -105,7 +112,7 @@ steps = [
             "--step", "NANO",
             "--nThreads", "8",
             "--python_filename", "cfg_5_NANOAOD.py",
-            "--era", "Run2_2018,run2_nanoAOD_106Xv1" 
+            "--era", nanoaod_era_extension
         ]
     }
 ]
@@ -134,9 +141,7 @@ for step in steps:
         f.write(f"\n\n### {step['name']} ###")
         f.write(cmd_string + "\n\n")
 
-
     try:   subprocess.run(full_cmd, check=True)
     except subprocess.CalledProcessError as e:  print(f"\n\033[91mError while generating {step['name']} config. Check log or stdout for details.\033[0m\n")
-
 
 print("\nDone!")
