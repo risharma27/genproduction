@@ -1,0 +1,10 @@
+import model VLL
+define L = lp lp~
+define N = vlp vlp~
+define lepton = mu+ mu- vm vm~ #Taken from JSON
+
+generate p p > L L, (L > z lepton), (L > h lepton)      #Pair production
+add process p p > N N, (N > w+ lepton), (N > w- lepton) #Pair production 
+add process p p > L N, (L > z lepton), (L > h lepton), (N > w+ lepton), (N > w- lepton) #Associated production
+
+output VLLD_mu_M1600 -nojpeg
